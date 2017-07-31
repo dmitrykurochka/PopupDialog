@@ -27,35 +27,41 @@ import Foundation
 import UIKit
 
 final internal class PresentationController: UIPresentationController {
-
-    fileprivate lazy var overlay: PopupDialogOverlayView = {
-        return PopupDialogOverlayView(frame: .zero)
-    }()
-
+    
+    fileprivate weak var overlay: PopupDialogOverlayView?
+    
+    
     override init(presentedViewController: UIViewController, presenting presentingViewController: UIViewController?) {
         super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
-        overlay.blurView.underlyingView = presentingViewController?.view
-        overlay.frame = (presentingViewController?.view.bounds)!
+        if let popup = presentedViewController as? PopupDialog {
+            overlay = popup.overlayView
+        }
+        overlay?.blurView.underlyingView = presentingViewController?.view
+        overlay?.frame = (presentingViewController?.view.bounds)!
     }
-
+    
     override func presentationTransitionWillBegin() {
-        overlay.frame = containerView!.bounds
-        containerView!.insertSubview(overlay, at: 0)
-
+        
+        if let container = containerView, let overlay = overlay {
+            overlay.frame = container.bounds
+            container.insertSubview(overlay, at: 0)
+        }
+        
+        
         presentedViewController.transitionCoordinator?.animate(alongsideTransition: { (coordinatorContext) -> Void in
-            self.overlay.alpha = 1.0
+            self.overlay?.alpha = 1.0
         }, completion: nil)
     }
-
+    
     override func dismissalTransitionWillBegin() {
         presentedViewController.transitionCoordinator?.animate(alongsideTransition: { (coordinatorContext) -> Void in
-            self.overlay.alpha = 0.0
+            self.overlay?.alpha = 0.0
         }, completion: nil)
     }
-
+    
     override func containerViewWillLayoutSubviews() {
         presentedView!.frame = frameOfPresentedViewInContainerView
-        overlay.blurView.setNeedsDisplay()
+        overlay?.blurView.setNeedsDisplay()
     }
-
+    
 }
