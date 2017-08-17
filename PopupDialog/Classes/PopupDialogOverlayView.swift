@@ -59,7 +59,7 @@ final public class PopupDialogOverlayView: UIView {
     }
     
     /// The opacity of the overay view
-    public var overlayOpacity: Float {
+    public dynamic var overlayOpacity: Float {
         get { return Float(overlay.alpha) }
         set { overlay.alpha = CGFloat(newValue) }
     }
